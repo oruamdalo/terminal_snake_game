@@ -1,0 +1,152 @@
+                north
+
+            \ 0 1 2 3 4   <- x
+            0 o o o o o
+ west       1 o o o o o        east
+            2 o @ o o o
+            ^
+            |
+            y
+ 
+                south
+
+where is @? 
+in the memory it's saved like this:
+0 1 2 3 4   5 6 7 8 9   A B C D E
+o o o o o | o o o o o | o @ o o o  <- MEMORY LAYOUT 
+
+ok now there are R = 3 rows and C = 5 columns
+
+ok now let's see. we have x = 1 and y = 2
+
+x * R + y = 1 * 3 + 2 = 3  + 2 = 5
+y * C + x = 2 * 5 + 1 = 10 + 1 = 11 <- THIS!
+
+ok so the right way to calculate the position is y * C + x
+
+how do I print MEMORY LAYOUT like a matrix?
+
+I should print one row at a time
+so 
+for (i in ROWS)
+    for (j in COLS)
+        print(?) <- ? what should we print?
+        
+initially we have i=0, j=0. so j*C+i =0
+then we have i=0, j=1; j*C+i = 0! not good, it should have been 1
+
+so we should do i*C+j?
+
+i=0, j=1 -> i*C+j = 1
+what if i=1?
+
+i=1, j=0 -> i*C+j = (remember C is 5) = 1*5 + 0 = 5, correct! 
+
+
+now let's deal with movements. I will show again the grid
+
+                north
+
+            \ 0 1 2 3 4   <- x
+            0 o o o o o
+ west       1 o o o o o        east
+            2 o @ o o o
+            ^
+            |
+            y
+ 
+                south
+
+Going north means decrementing y, south incrementing. 
+East is incrementing x, west decrementing x. Pretty easy. Ok now we have basic movements
+
+What about pacman effect?
+since the snake moves one block at a time, if x > COLS or y > ROWS, then we need to set it to zero
+if x <0 or y <0, simply put x = COLS-1 or y = ROWS-1. 
+
+Now the hard part: creating and managing the snake body!
+Ok I think we need to separate three cases:
+1) length = 1
+2) length = 2
+3) length > 2
+
+[1]
+in the first case, head = tail. We can just point both to the same (pointer) snakenode
+when I hit the apple I should add a new (pointer) node (with correct position), let the head point to that node and set head->next = tail
+
+[2]
+ok now we are in the second case: how to move two body pieces? Let's say that the snake move UP (north):
+we just need to decrement 'y'. should we shift the whole snake by creating iterating each node and change? NO!
+we are using this linked list to avoid "remembering" all directions. Just create a new node with the next position. 
+Then head = this new node and update previous
+
+new_node->next = tail;
+head = new_node;
+
+(remember: length is two) how?
+
+now we have head->tail->NULL
+
+
+O    turn right will show this  O O
+O
+
+we also need to update tail
+
+if (length == 2)
+    tail = head;
+    new_node->next = tail;
+    head = new_node
+
+[3]
+
+we now need to manage length > 2
+it's just like the normal case 
+new_node->next = head;
+head = new_node.
+
+but, if we didn't eat anything, we need to remove the tail
+to do so, just while() until second-to-last then free(->next) which will be the tail, and put ->next to NULL
+
+ok, new problem: prevent invalid direction
+
+since directions go from 0 to 3, north to west clockwise, we can take advantage of the % operator
+
+if i'm going north, I can't go south
+
+north = 0
+south = 2
+
+ok so I have current direction: north
+new direction: south
+
+
+(north + south) % 4 -> (0 + 2) % 4 == 2
+
+ok so I have current direction: east
+new direction: west
+
+
+(east + west) % 4 -> (1 + 3) % 4 == 0
+
+so just if current + next is not even?
+mh, no this would leave some cases. let's hardcode all invalid combos
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
